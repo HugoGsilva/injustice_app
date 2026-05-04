@@ -8,7 +8,7 @@ enum AccountSuccessEvent { created, updated, deleted }
 /// que serão consumidas na UI
 class AccountStateViewModel {
   /// Estado da conta, inicializada como nula
-  final state = Signal<Account?>(null);
+  final state = signal<Account?>(null);
 
   /// Mensagem de erro ou aviso, inicializada como nula
   final message = signal<String?>(null);

@@ -81,9 +81,10 @@ class AppDrawer extends StatelessWidget {
             ),
             title: Watch(
               (_) => Text(
-                _vmAccount.accountState.hasAccount.value
-                    ? 'Editar Conta'
-                    : 'Criar Conta',
+                _vmAccount.accountState.title.value,
+                // _vmAccount.accountState.hasAccount.value
+                //     ? 'Editar Conta'
+                //     : 'Criar Conta',
                 style: currentRoute == AppPaths.accountCreate
                     ? TextStyle(
                         fontWeight: FontWeight.bold,
