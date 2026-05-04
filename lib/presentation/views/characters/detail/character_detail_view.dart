@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 import '../../../../core/di/dependency_injection.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../domain/models/character_entity.dart';
 import '../../../controllers/characters_view_model.dart';
@@ -164,15 +165,21 @@ class _CharacterDetailViewState extends State<CharacterDetailView> {
       await _viewModel.commands.addCharacter(character);
     }
 
+    if (!mounted) return;
+
     _resetFormView();
 
-    if (mounted) {
-      showSnackBar(
-        context,
-        _isEditing ? 'Personagem atualizado!' : 'Personagem criado!',
-        backgroundColor: Colors.green,
-      );
-      context.pop();
+    final message = _isEditing ? 'Personagem atualizado!' : 'Personagem criado!';
+    showSnackBar(context, message, backgroundColor: Colors.green);
+
+    // Pequeno delay para SnackBar aparecer antes de navegar
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      context.goNamed(AppRouteNames.characters);
     }
   }
 
@@ -190,10 +197,76 @@ class _CharacterDetailViewState extends State<CharacterDetailView> {
 
     await _viewModel.commands.deleteCharacter(widget.character!.id);
 
-    if (mounted) {
-      showSnackBar(context, '${widget.character!.name} removido', backgroundColor: Colors.red);
-      context.pop();
+    if (!mounted) return;
+
+    showSnackBar(context, '${widget.character!.name} removido', backgroundColor: Colors.red);
+
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      context.goNamed(AppRouteNames.characters);
     }
+  }
+
+  Widget _buildSaveButton() {
+    return Watch((context) {
+      final isRunning =
+          _viewModel.commands.createCharacterCommand.isExecuting.value ||
+              _viewModel.commands.updateCharacterCommand.isExecuting.value;
+
+      return ElevatedButton(
+        onPressed: isRunning ? null : _salvarPersonagem,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        ),
+        child: isRunning
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                _isEditing ? 'SALVAR' : 'CRIAR',
+                style: context.textStyles.titleMedium?.bold,
+              ),
+      );
+    });
+  }
+
+  Widget _buildDeleteButton() {
+    return Watch((context) {
+      final isDeleting =
+          _viewModel.commands.deleteCharacterCommand.isExecuting.value;
+
+      return ElevatedButton(
+        onPressed: isDeleting ? null : _excluirPersonagem,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
+        ),
+        child: isDeleting
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                'EXCLUIR',
+                style: context.textStyles.titleMedium?.bold,
+              ),
+      );
+    });
   }
 
   @override
@@ -203,12 +276,17 @@ class _CharacterDetailViewState extends State<CharacterDetailView> {
         title: Text(_isEditing ? 'Editar Personagem' : 'Novo Personagem'),
       ),
       drawer: AppDrawer(),
-      body: GestureDetector(
+        body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          padding: AppSpacing.paddingLg,
-          child: Form(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isSmallScreen = constraints.maxWidth < 360;
+            return SingleChildScrollView(
+              controller: _scrollController,
+              padding: isSmallScreen
+                  ? AppSpacing.paddingMd
+                  : AppSpacing.paddingLg,
+              child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -321,77 +399,34 @@ class _CharacterDetailViewState extends State<CharacterDetailView> {
                 const SizedBox(height: AppSpacing.xl),
 
                 // Botões
-                Row(
-                  children: [
-                    // Salvar
-                    Expanded(
-                      child: Watch((context) {
-                        final isRunning =
-                            _viewModel.commands.createCharacterCommand.isExecuting.value ||
-                                _viewModel.commands.updateCharacterCommand.isExecuting.value;
-
-                        return ElevatedButton(
-                          onPressed: isRunning ? null : _salvarPersonagem,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          child: isRunning
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : Text(
-                                  _isEditing ? 'SALVAR' : 'CRIAR',
-                                  style: context.textStyles.titleMedium?.bold,
-                                ),
-                        );
-                      }),
-                    ),
-
-                    if (_isEditing) ...[
-                      const SizedBox(width: AppSpacing.md),
-                      // Excluir
-                      Expanded(
-                        child: Watch((context) {
-                          final isDeleting =
-                              _viewModel.commands.deleteCharacterCommand.isExecuting.value;
-
-                          return ElevatedButton(
-                            onPressed: isDeleting ? null : _excluirPersonagem,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                              backgroundColor: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            child: isDeleting
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                : Text(
-                                    'EXCLUIR',
-                                    style: context.textStyles.titleMedium?.bold,
-                                  ),
-                          );
-                        }),
-                      ),
+                if (isSmallScreen)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildSaveButton(),
+                      if (_isEditing) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        _buildDeleteButton(),
+                      ],
                     ],
-                  ],
-                ),
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(child: _buildSaveButton()),
+                      if (_isEditing) ...[
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(child: _buildDeleteButton()),
+                      ],
+                    ],
+                  ),
               ],
             ),
           ),
-        ),
-      ),
-    );
+        );
+      },
+    ),
+  ),
+);
   }
 }

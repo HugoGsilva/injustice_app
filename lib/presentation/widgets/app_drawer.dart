@@ -129,12 +129,9 @@ class AppDrawer extends StatelessWidget {
                   ? () {
                       context.pop();
 
-                      Account account = _vmAccount.accountState.state.value!;
-
                       if (currentRoute != AppPaths.characters) {
                         context.goNamed(
                           AppRouteNames.characters,
-                          extra: account,
                         );
                       }
                     }

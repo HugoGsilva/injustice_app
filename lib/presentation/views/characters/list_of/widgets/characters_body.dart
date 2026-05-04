@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
+import '../../../../../core/di/dependency_injection.dart';
 import '../../../../../core/routes/app_routes.dart';
 import '../../../../../core/theme/app_theme.dart';
-import '../../../../../domain/models/account_entity.dart';
 import '../../../../../domain/models/character_entity.dart';
 import '../../../../../domain/models/extensions/character_ui.dart';
+import '../../../../controllers/account_viewmodel.dart';
 import '../../../../controllers/characters_state_viewmodel.dart';
 import '../../../../controllers/characters_view_model.dart';
 import '../../../../functions/ui_functions.dart';
@@ -17,12 +18,10 @@ import '../../../../widgets/star_rating.dart';
 
 class CharactersBody extends StatelessWidget {
   final CharactersViewModel viewModel;
-  final Account account;
 
   const CharactersBody({
     super.key,
     required this.viewModel,
-    required this.account,
   });
 
   Future<void> _deleteCharacter(BuildContext context, Character character) async {
@@ -65,7 +64,14 @@ class CharactersBody extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: AppSpacing.paddingMd,
-                child: AccountSummaryCard(account: account),
+                child: Watch((context) {
+                  final accountVm = injector.get<AccountViewModel>();
+                  final account = accountVm.accountState.state.value;
+                  if (account == null) {
+                    return const SizedBox.shrink();
+                  }
+                  return AccountSummaryCard(account: account);
+                }),
               ),
             ),
 

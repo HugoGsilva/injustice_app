@@ -33,24 +33,30 @@ class EnumDropdownPicker<T extends Enum> extends StatelessWidget {
                 ],
               ),
             ),
-            DropdownButton<T>(
-              value: value,
-              underline: Container(
-                height: 2,
-                color: Theme.of(context).colorScheme.primary,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 120),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<T>(
+                  value: value,
+                  isExpanded: true,
+                  dropdownColor: Theme.of(context).colorScheme.secondary,
+                  style: context.textStyles.bodyMedium,
+                  items: values.map((v) {
+                    return DropdownMenuItem<T>(
+                      value: v,
+                      child: Text(
+                        displayNameBuilder(v),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    if (newValue != null) {
+                      onChanged(newValue);
+                    }
+                  },
+                ),
               ),
-              dropdownColor: Theme.of(context).colorScheme.secondary,
-              items: values.map((v) {
-                return DropdownMenuItem<T>(
-                  value: v,
-                  child: Text(displayNameBuilder(v)),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                if (newValue != null) {
-                  onChanged(newValue);
-                }
-              },
             ),
           ],
         ),

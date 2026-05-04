@@ -144,7 +144,7 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                     left: Radius.circular(AppRadius.md),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: const EdgeInsets.all(AppSpacing.sm),
                     child: Icon(
                       Icons.remove,
                       color: canDecrement
@@ -161,8 +161,8 @@ class _NumericSpinnerState extends State<NumericSpinner> {
 
               // Campo de entrada
               Container(
-                width: 100,
-                padding: AppSpacing.horizontalSm,
+                width: 70,
+                padding: AppSpacing.horizontalXs,
                 child: TextField(
                   controller: _controller,
                   focusNode: _focusNode,
@@ -190,7 +190,7 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                     right: Radius.circular(AppRadius.md),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: const EdgeInsets.all(AppSpacing.sm),
                     child: Icon(
                       Icons.add,
                       color: canIncrement

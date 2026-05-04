@@ -31,9 +31,10 @@ abstract base class Command<Success, Error>
     if (_running.value) return _result.value!; // já está rodando
     _running.value = true; // indica que está rodando
     _result.value = null; // limpa resultado anterior
-    _result.value = await execute(); // executa a ação
+    final result = await execute(); // executa a ação
+    _result.value = result;
     _running.value = false; // indica que terminou
-    return _result.value!;
+    return result;
   }
 
   void clear() {

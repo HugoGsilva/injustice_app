@@ -198,7 +198,6 @@ class _HomeViewState extends State<HomeView> {
               child: FilledButton.icon(
                 onPressed: () => context.goNamed(
                   AppRouteNames.characters,
-                  extra: _vmAccount.accountState.state.value,
                 ),
                 icon: const Icon(Icons.people),
                 label: const Text('Ver Meus Personagens'),

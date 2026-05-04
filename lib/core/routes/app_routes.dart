@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 
-import '../../domain/models/account_entity.dart';
 import '../../domain/models/character_entity.dart';
 import '../../presentation/views/about_view.dart';
 import '../../presentation/views/account_create_view.dart';
@@ -49,8 +48,7 @@ class AppRouter {
         path: AppPaths.characters,
         name: AppRouteNames.characters,
         pageBuilder: (context, state) {
-          final account = state.extra as Account;
-          return NoTransitionPage(child: CharactersView(account: account));
+          return const NoTransitionPage(child: CharactersView());
         },
       ),
       GoRoute(
