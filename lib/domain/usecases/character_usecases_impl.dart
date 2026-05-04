@@ -45,6 +45,20 @@ final class SaveCharacterUseCaseImpl implements ISaveCharacterUseCase {
   }
 }
 
+/// use case para atualizar um personagem
+final class UpdateCharacterUseCaseImpl implements IUpdateCharacterUseCase {
+  final ICharacterRepository _repository;
+
+  UpdateCharacterUseCaseImpl({required ICharacterRepository repository})
+    : _repository = repository;
+
+  @override
+  Future<CharacterResult> call(CharacterParams params) async {
+    await Future.delayed(const Duration(seconds: 3));
+    return _repository.updateCharacter(params.character);
+  }
+}
+
 /// use case para deletar um personagem
 final class DeleteCharacterUseCaseImpl implements IDeleteCharacterUseCase {
   final ICharacterRepository _repository;

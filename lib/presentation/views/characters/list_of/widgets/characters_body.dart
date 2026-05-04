@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+
+import '../../../../../core/routes/app_routes.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../domain/models/account_entity.dart';
 import '../../../../../domain/models/character_entity.dart';
 import '../../../../../domain/models/extensions/character_ui.dart';
 import '../../../../controllers/characters_state_viewmodel.dart';
 import '../../../../controllers/characters_view_model.dart';
+import '../../../../functions/ui_functions.dart';
 import '../../../../widgets/account_summary_card.dart';
 import '../../../../widgets/empty_state.dart';
 import '../../../../widgets/loading_indicator.dart';
 import '../../../../widgets/star_rating.dart';
-import 'package:signals_flutter/signals_flutter.dart';
 
 class CharactersBody extends StatelessWidget {
   final CharactersViewModel viewModel;
@@ -20,6 +24,30 @@ class CharactersBody extends StatelessWidget {
     required this.viewModel,
     required this.account,
   });
+
+  Future<void> _deleteCharacter(BuildContext context, Character character) async {
+    final confirm = await confirmDialog(
+      context,
+      title: 'Excluir Personagem',
+      message: 'Tem certeza que deseja excluir ${character.name}?',
+      confirmText: 'EXCLUIR',
+    );
+
+    if (!confirm) return;
+
+    await viewModel.commands.deleteCharacter(character.id);
+
+    if (context.mounted) {
+      showSnackBar(context, '${character.name} removido', backgroundColor: Colors.red);
+    }
+  }
+
+  void _openCharacterDetail(BuildContext context, Character character) {
+    context.pushNamed(
+      AppRouteNames.characterDetail,
+      extra: character,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +91,8 @@ class CharactersBody extends StatelessWidget {
                     final character = characters[index];
                     return CharacterListItem(
                       character: character,
-                      onDelete: () {},
-                      onTap: () {},
+                      onDelete: () => _deleteCharacter(context, character),
+                      onTap: () => _openCharacterDetail(context, character),
                     );
                   }, childCount: characters.length),
                 ),

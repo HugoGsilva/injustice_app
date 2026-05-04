@@ -9,16 +9,24 @@ class CharactersCommandsViewModel {
   final CharactersStateViewmodel state;
   final GetAllCharactersCommand _getAccountCommand;
   final CreateCharacterCommand _createCharacterCommand;
+  final DeleteCharacterCommand _deleteCharacterCommand;
+  final UpdateCharacterCommand _updateCharacterCommand;
 
   CharactersCommandsViewModel({
     required this.state,
     required GetAllCharactersCommand getAccountCommand,
     required CreateCharacterCommand createCharacterCommand,
+    required DeleteCharacterCommand deleteCharacterCommand,
+    required UpdateCharacterCommand updateCharacterCommand,
   }) : _getAccountCommand = getAccountCommand,
-       _createCharacterCommand = createCharacterCommand {
+       _createCharacterCommand = createCharacterCommand,
+       _deleteCharacterCommand = deleteCharacterCommand,
+       _updateCharacterCommand = updateCharacterCommand {
     // Observers para cada comando
     _observeGetAllCharacters();
     _observeCreateCharacter();
+    _observeDeleteCharacter();
+    _observeUpdateCharacter();
   }
 
   // ========================================================
@@ -26,6 +34,8 @@ class CharactersCommandsViewModel {
   // ========================================================
   GetAllCharactersCommand get getAllCharactersCommand => _getAccountCommand;
   CreateCharacterCommand get createCharacterCommand => _createCharacterCommand;
+  DeleteCharacterCommand get deleteCharacterCommand => _deleteCharacterCommand;
+  UpdateCharacterCommand get updateCharacterCommand => _updateCharacterCommand;
 
   // ========================================================
   //   MÉTODO GENÉRICO DE OBSERVAÇÃO DE COMANDOS
@@ -103,5 +113,51 @@ class CharactersCommandsViewModel {
   Future<void> addCharacter(Character character) async {
     state.clearMessage(); // Limpa mensagens anteriores
     await _createCharacterCommand.executeWith((character: character));
+  }
+
+  /// deleta personagem e atualiza o estado
+  Future<void> deleteCharacter(String id) async {
+    state.clearMessage(); // Limpa mensagens anteriores
+    await _deleteCharacterCommand.executeWith((id: id));
+  }
+
+  /// atualiza personagem e atualiza o estado
+  Future<void> updateCharacter(Character character) async {
+    state.clearMessage(); // Limpa mensagens anteriores
+    await _updateCharacterCommand.executeWith((character: character));
+  }
+
+  // ========================================================
+  //   OBSERVERS PARA DELETE E UPDATE
+  // ========================================================
+
+  /// Deletar um personagem
+  void _observeDeleteCharacter() {
+    _observeCommand<Character>(
+      _deleteCharacterCommand,
+      onSuccess: (deletedCharacter) {
+        final currentList = state.state.value;
+        final newList = currentList.where((c) => c.id != deletedCharacter.id).toList();
+        state.state.value = newList;
+      },
+      onFailure: (err) => state.setMessage(err.msg),
+    );
+  }
+
+  /// Atualizar um personagem
+  void _observeUpdateCharacter() {
+    _observeCommand<Character>(
+      _updateCharacterCommand,
+      onSuccess: (updatedCharacter) {
+        final currentList = state.state.value;
+        final index = currentList.indexWhere((c) => c.id == updatedCharacter.id);
+        if (index != -1) {
+          final newList = List<Character>.from(currentList);
+          newList[index] = updatedCharacter;
+          state.state.value = newList;
+        }
+      },
+      onFailure: (err) => state.setMessage(err.msg),
+    );
   }
 }

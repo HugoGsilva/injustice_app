@@ -196,8 +196,10 @@ class _HomeViewState extends State<HomeView> {
             // Botão para ver personagens
             Center(
               child: FilledButton.icon(
-                onPressed: () => context.goNamed(AppRouteNames.characters),
-                // onPressed: () => context.push(AppRoutes.personagens),
+                onPressed: () => context.goNamed(
+                  AppRouteNames.characters,
+                  extra: _vmAccount.accountState.state.value,
+                ),
                 icon: const Icon(Icons.people),
                 label: const Text('Ver Meus Personagens'),
                 style: FilledButton.styleFrom(

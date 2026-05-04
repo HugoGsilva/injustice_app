@@ -49,3 +49,7 @@ class InvalidPhone extends Failure {
   InvalidPhone([String? msg])
     : super(msg ?? AppMessages.error.invalidPhoneError);
 }
+
+class NotFoundFailure extends Failure {
+  NotFoundFailure([String? msg]) : super(msg ?? 'Item não encontrado.');
+}

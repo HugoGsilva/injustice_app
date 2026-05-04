@@ -1,8 +1,10 @@
 import 'package:go_router/go_router.dart';
 
 import '../../domain/models/account_entity.dart';
+import '../../domain/models/character_entity.dart';
 import '../../presentation/views/about_view.dart';
 import '../../presentation/views/account_create_view.dart';
+import '../../presentation/views/characters/detail/character_detail_view.dart';
 import '../../presentation/views/characters/list_of/characters_view.dart';
 import '../../presentation/views/home_view.dart';
 
@@ -12,6 +14,7 @@ class AppRouteNames {
   static const about = 'about';
   static const accountCreate = 'account_create';
   static const characters = 'characters';
+  static const characterDetail = 'character_detail';
 }
 
 /// Paths to keep URL structure consistent
@@ -20,6 +23,7 @@ class AppPaths {
   static const about = '/about';
   static const accountCreate = '/account-create';
   static const characters = '/characters';
+  static const characterDetail = '/character-detail';
 }
 
 /// app routers using go_router
@@ -47,6 +51,14 @@ class AppRouter {
         pageBuilder: (context, state) {
           final account = state.extra as Account;
           return NoTransitionPage(child: CharactersView(account: account));
+        },
+      ),
+      GoRoute(
+        path: AppPaths.characterDetail,
+        name: AppRouteNames.characterDetail,
+        pageBuilder: (context, state) {
+          final character = state.extra as Character?;
+          return NoTransitionPage(child: CharacterDetailView(character: character));
         },
       ),
       GoRoute(
